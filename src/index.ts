@@ -1,12 +1,29 @@
+import "reflect-metadata";
 import express from "express";
+import { graphqlHTTP } from "express-graphql";
+import mongoose from "mongoose";
 
-import { port } from "./config";
+import { port, mongoUri } from "./config";
+import schema from "./graphql/schema";
 
-const app = express();
-app.use(express.json());
+(async () => {
+  const app = express();
+  app.use(express.json());
+  app.use(
+    "/graphql",
+    graphqlHTTP({
+      schema: await schema(),
+      graphiql: true,
+    })
+  );
 
-app.get("/", (_, res) => {
-  res.send("Hello World!");
-});
-
-app.listen(port, () => console.log("Now listening on port 5000..."));
+  mongoose
+    .connect(mongoUri as string, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(() => {
+      console.log("Now connected to database...");
+      app.listen(port, () => console.log("Now listening on port 5000..."));
+    });
+})();
