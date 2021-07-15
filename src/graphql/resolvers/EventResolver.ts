@@ -1,66 +1,34 @@
-import {
-  Arg,
-  Field,
-  Float,
-  ID,
-  InputType,
-  Mutation,
-  ObjectType,
-  Query,
-  Resolver,
-} from "type-graphql";
+import { mongoose } from "@typegoose/typegoose";
+import { Arg, Mutation, Query, Resolver } from "type-graphql";
 
-@ObjectType()
-class Event {
-  @Field(() => ID!)
-  _id!: string;
-
-  @Field(() => String!)
-  title!: string;
-
-  @Field(() => String!)
-  description!: string;
-
-  @Field(() => Float!)
-  price!: number;
-
-  @Field(() => String!)
-  date!: string;
-}
-
-@InputType()
-class EventInput {
-  @Field(() => String!)
-  title!: string;
-
-  @Field(() => String!)
-  description!: string;
-
-  @Field(() => Float!)
-  price!: number;
-
-  @Field(() => String!)
-  date!: string;
-}
+import { Event, EventInput } from "../../types/eventTypes";
+import { EventModel } from "../../models/eventModel";
 
 @Resolver(Event)
 class EventResolver {
   @Query(() => [Event!]!)
-  events(): Event[] {
-    return [
-      {
-        _id: "string",
-        title: "string",
-        description: "string",
-        price: 27.32,
-        date: "new Date()",
-      },
-    ];
+  async events(): Promise<Event[]> {
+    try {
+      const events = await EventModel.find();
+      return events;
+    } catch (err) {
+      throw new Error(err);
+    }
   }
 
   @Mutation(() => Event!)
-  createEvent(@Arg("eventInput") eventInput: EventInput): Event {
-    return { _id: "string", ...eventInput };
+  async createEvent(@Arg("eventInput") eventInput: EventInput): Promise<Event> {
+    try {
+      const event = new EventModel({
+        _id: new mongoose.Types.ObjectId(),
+        ...eventInput,
+      });
+
+      await event.save();
+      return event;
+    } catch (err) {
+      throw new Error(err);
+    }
   }
 }
 
