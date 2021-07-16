@@ -7,11 +7,6 @@ import { UserModel } from "../../models/models";
 
 @Resolver(User)
 class UserResolver {
-  @Query(() => String)
-  user(): String {
-    return "string";
-  }
-
   @Mutation(() => User!)
   async createUser(@Arg("userInput") userInput: UserInput): Promise<User> {
     try {

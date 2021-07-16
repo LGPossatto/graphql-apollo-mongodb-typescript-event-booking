@@ -26,7 +26,7 @@ export class Event {
   date!: Date;
 
   @Field(() => User!)
-  @prop({ required: true, ref: "User" })
+  @prop({ required: true, ref: User })
   creator!: Ref<User>;
 }
 
