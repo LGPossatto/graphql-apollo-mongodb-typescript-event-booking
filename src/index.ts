@@ -21,6 +21,7 @@ import schema from "./graphql/schema";
     .connect(mongoUri as string, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      useCreateIndex: true,
     })
     .then(() => {
       console.log("Now connected to database...");

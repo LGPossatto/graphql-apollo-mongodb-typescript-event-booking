@@ -2,7 +2,7 @@ import { mongoose } from "@typegoose/typegoose";
 import { Arg, Mutation, Query, Resolver } from "type-graphql";
 
 import { Event, EventInput } from "../../types/eventTypes";
-import { EventModel } from "../../models/eventModel";
+import { EventModel, UserModel } from "../../models/models";
 
 @Resolver(Event)
 class EventResolver {
@@ -19,13 +19,23 @@ class EventResolver {
   @Mutation(() => Event!)
   async createEvent(@Arg("eventInput") eventInput: EventInput): Promise<Event> {
     try {
-      const event = new EventModel({
+      const newEvent = new EventModel({
         _id: new mongoose.Types.ObjectId(),
         ...eventInput,
+        creator: "60f1ccc94915a31f1c9fa45f",
       });
 
-      await event.save();
-      return event;
+      await newEvent.save();
+
+      const user = await UserModel.findById("60f1ccc94915a31f1c9fa45f");
+      if (user) {
+        user.createdEvents.push(newEvent);
+        await user.save();
+      } else {
+        throw new Error("User Not Found");
+      }
+
+      return newEvent;
     } catch (err) {
       throw new Error(err);
     }

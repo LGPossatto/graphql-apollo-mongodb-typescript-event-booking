@@ -1,6 +1,8 @@
-import { prop } from "@typegoose/typegoose";
 import { ObjectId } from "mongodb";
+import { prop, Ref } from "@typegoose/typegoose";
 import { Field, Float, ID, InputType, ObjectType } from "type-graphql";
+
+import { User } from "./userTypes";
 
 @ObjectType()
 export class Event {
@@ -22,6 +24,10 @@ export class Event {
   @Field(() => Date!)
   @prop({ required: true, type: () => Date })
   date!: Date;
+
+  @Field(() => User!)
+  @prop({ required: true, ref: "User" })
+  creator!: Ref<User>;
 }
 
 @InputType()
