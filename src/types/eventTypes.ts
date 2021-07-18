@@ -44,3 +44,9 @@ export class EventInput {
   @Field(() => Date!)
   date!: Date;
 }
+
+@InputType()
+export class EventIdInput {
+  @Field(() => ID!)
+  eventId!: ObjectId;
+}
