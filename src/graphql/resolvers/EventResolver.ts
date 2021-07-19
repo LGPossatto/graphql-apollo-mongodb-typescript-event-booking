@@ -1,6 +1,8 @@
 import { mongoose } from "@typegoose/typegoose";
 import { Arg, Mutation, Query, Resolver } from "type-graphql";
 
+import { removePassword } from "../../utils";
+
 import { Event, EventInput } from "../../types/eventTypes";
 import { EventModel, UserModel } from "../../models/models";
 
@@ -31,7 +33,13 @@ class EventResolver {
 
       await newEvent.save();
 
-      const user = await UserModel.findById("60f1ccc94915a31f1c9fa45f");
+      const user = await UserModel.findById(
+        "60f1ccc94915a31f1c9fa45f"
+      ).populate({
+        path: "createdEvents",
+        populate: { path: "creator" },
+      });
+
       if (user) {
         user.createdEvents.push(newEvent);
         await user.save();
@@ -47,6 +55,7 @@ class EventResolver {
         date: newEvent.date,
         creator: user,
       };
+      //removePassword(newEvent, user)
     } catch (err) {
       throw new Error(err);
     }

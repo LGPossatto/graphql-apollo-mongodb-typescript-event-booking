@@ -1,8 +1,11 @@
 import { Arg, Mutation, Query, Resolver } from "type-graphql";
-import { BookingModel, EventModel, UserModel } from "../../models/models";
+import { BookingModel, EventModel } from "../../models/models";
+
+import { removePassword } from "../../utils";
 
 import { Booking, BookingInput } from "../../types/bookingTypes";
 import { Event, EventIdInput } from "../../types/eventTypes";
+import { User } from "../../types/userTypes";
 
 @Resolver(Booking)
 class BookingResolver {
@@ -20,21 +23,11 @@ class BookingResolver {
         });
 
       return bookings.map((booking) => {
-        return {
-          // @ts-ignore
-          ...booking._doc,
-          // @ts-ignore
-          user: { ...booking._doc.user._doc, password: null },
-          event: {
-            // @ts-ignore
-            ...booking._doc.event._doc,
-            creator: {
-              // @ts-ignore
-              ...booking._doc.event._doc.creator._doc,
-              password: null,
-            },
-          },
-        };
+        return removePassword(
+          booking,
+          booking.user as User,
+          booking.event as Event
+        );
       });
     } catch (err) {
       console.error(err);
@@ -59,19 +52,7 @@ class BookingResolver {
         });
 
         await newBooking.save();
-        return {
-          // @ts-ignore
-          ...newBooking._doc,
-          event: {
-            // @ts-ignore
-            ...event._doc,
-            creator: {
-              // @ts-ignore
-              ...event._doc.creator._doc,
-              password: null,
-            },
-          },
-        };
+        return removePassword(newBooking, undefined, newBooking.event as Event);
       } else {
         throw new Error("Event Not Found");
       }
@@ -92,18 +73,10 @@ class BookingResolver {
         populate: { path: "creator", populate: "createdEvents" },
       });
 
-      await BookingModel.deleteOne({ _id: bookingInput.bookingId });
+      //await BookingModel.deleteOne({ _id: bookingInput.bookingId });
 
       if (booking) {
-        return {
-          // @ts-ignore
-          ...booking._doc.event._doc,
-          creator: {
-            // @ts-ignore
-            ...booking._doc.event._doc.creator._doc,
-            password: null,
-          },
-        };
+        return removePassword(booking.event, undefined, undefined, false, true);
       } else {
         throw new Error("Booking Not Found");
       }
