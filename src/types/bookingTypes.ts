@@ -11,11 +11,11 @@ export class Booking {
   @Field(() => ID!)
   readonly _id!: ObjectId;
 
-  @Field(() => String!)
+  @Field(() => Event!)
   @prop({ required: true, ref: "Event" })
   event!: Ref<Event>;
 
-  @Field(() => String!)
+  @Field(() => User!)
   @prop({ required: true, ref: "User" })
   user!: Ref<User>;
 }
