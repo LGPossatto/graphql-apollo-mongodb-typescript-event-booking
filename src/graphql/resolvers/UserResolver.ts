@@ -1,14 +1,44 @@
 import { mongoose } from "@typegoose/typegoose";
-import { Arg, Mutation, Resolver } from "type-graphql";
+import { Arg, Mutation, Query, Resolver } from "type-graphql";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 import { removeObjectPassword } from "../../utils";
 
-import { User, UserInput } from "../../types/userTypes";
+import { AuthData, User, UserInput } from "../../types/userTypes";
 import { UserModel } from "../../models/models";
+import { secretKey } from "../../config";
+import { Token } from "graphql";
 
 @Resolver(User)
 class UserResolver {
+  @Query(() => AuthData!)
+  async login(@Arg("userInput") userInput: UserInput): Promise<AuthData> {
+    const user = await UserModel.findOne({ email: userInput.email });
+
+    if (!user) {
+      throw new Error("Wrong Credentials");
+    } else if (
+      !(await bcrypt.compare(userInput.password, user.password as string))
+    ) {
+      throw new Error("Wrong Credentials");
+    } else {
+      const token = jwt.sign(
+        { userId: user.id, email: user.email },
+        secretKey as string,
+        {
+          expiresIn: "1h",
+        }
+      );
+
+      return {
+        userId: user.id,
+        token: token,
+        tokenExpiration: 1,
+      };
+    }
+  }
+
   @Mutation(() => User!)
   async createUser(@Arg("userInput") userInput: UserInput): Promise<User> {
     try {

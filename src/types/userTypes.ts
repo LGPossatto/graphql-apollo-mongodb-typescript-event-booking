@@ -22,6 +22,18 @@ export class User {
   createdEvents!: Ref<Event>[];
 }
 
+@ObjectType()
+export class AuthData {
+  @Field(() => ID!)
+  userId!: ObjectId;
+
+  @Field(() => String!)
+  token!: string;
+
+  @Field(() => Number!)
+  tokenExpiration!: number;
+}
+
 @InputType()
 export class UserInput {
   @Field(() => String!)
