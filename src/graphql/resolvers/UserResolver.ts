@@ -2,7 +2,7 @@ import { mongoose } from "@typegoose/typegoose";
 import { Arg, Mutation, Resolver } from "type-graphql";
 import bcrypt from "bcryptjs";
 
-import { removePassword } from "../../utils";
+import { removeObjectPassword } from "../../utils";
 
 import { User, UserInput } from "../../types/userTypes";
 import { UserModel } from "../../models/models";
@@ -22,8 +22,8 @@ class UserResolver {
         createdEvents: [],
       });
 
-      await newUser.save();
-      return removePassword(newUser, undefined, undefined, true);
+      // await newUser.save();
+      return removeObjectPassword(newUser, true);
     } catch (err) {
       throw new Error(err);
     }

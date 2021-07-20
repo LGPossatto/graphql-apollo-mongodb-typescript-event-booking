@@ -5,31 +5,15 @@ export const removePassword = <T>(
   object: T,
   oldUser?: User,
   oldEvent?: Event,
-  isUser?: boolean,
   isEvent?: boolean
 ) => {
   // @ts-ignore
   const ret = { ...object._doc };
 
-  if (isUser) {
-    ret.password = null;
-
-    /* if (oldUser?.createdEvents){
-        for (let i = 0; i< oldUser.createdEvents.length; i++) {
-            ret.
-        }
-    } */
-  }
-
   if (isEvent) {
-    ret.creator = {
-      // @ts-ignore
-      ...object._doc.creator._doc,
-      password: null,
-    };
-  }
-
-  if (oldUser) {
+    // @ts-ignore
+    ret.creator = { ...oldUser._doc, password: null };
+  } else if (oldUser) {
     // @ts-ignore
     ret.user = { ...oldUser._doc, password: null };
   }
@@ -43,6 +27,23 @@ export const removePassword = <T>(
         ...oldEvent._doc.creator._doc,
         password: null,
       },
+    };
+  }
+
+  return ret;
+};
+
+export const removeObjectPassword = <T>(object: T, isUser?: boolean) => {
+  // @ts-ignore
+  const ret = { ...object._doc };
+
+  if (isUser) {
+    ret.password = null;
+  } else {
+    ret.creator = {
+      // @ts-ignore
+      ...object._doc.creator._doc,
+      password: null,
     };
   }
 

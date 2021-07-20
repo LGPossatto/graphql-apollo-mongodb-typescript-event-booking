@@ -1,8 +1,8 @@
 import { Arg, Mutation, Query, Resolver } from "type-graphql";
-import { BookingModel, EventModel } from "../../models/models";
 
-import { removePassword } from "../../utils";
+import { removeObjectPassword, removePassword } from "../../utils";
 
+import { BookingModel, EventModel, UserModel } from "../../models/models";
 import { Booking, BookingInput } from "../../types/bookingTypes";
 import { Event, EventIdInput } from "../../types/eventTypes";
 import { User } from "../../types/userTypes";
@@ -19,7 +19,7 @@ class BookingResolver {
         })
         .populate({
           path: "event",
-          populate: { path: "creator" },
+          populate: { path: "creator", populate: { path: "createdEvents" } },
         });
 
       return bookings.map((booking) => {
@@ -45,14 +45,17 @@ class BookingResolver {
       });
 
       if (event) {
+        const user = await UserModel.findById(event.creator).populate(
+          "createdEvents"
+        );
+
         const newBooking = new BookingModel({
-          user: "60f1ccc94915a31f1c9fa45f",
-          // @ts-ignore
+          user: user,
           event: event,
         });
 
-        await newBooking.save();
-        return removePassword(newBooking, undefined, newBooking.event as Event);
+        // await newBooking.save();
+        return removePassword(newBooking, user as User, event as Event);
       } else {
         throw new Error("Event Not Found");
       }
@@ -73,10 +76,10 @@ class BookingResolver {
         populate: { path: "creator", populate: "createdEvents" },
       });
 
-      //await BookingModel.deleteOne({ _id: bookingInput.bookingId });
+      // await BookingModel.deleteOne({ _id: bookingInput.bookingId });
 
       if (booking) {
-        return removePassword(booking.event, undefined, undefined, false, true);
+        return removeObjectPassword(booking.event);
       } else {
         throw new Error("Booking Not Found");
       }

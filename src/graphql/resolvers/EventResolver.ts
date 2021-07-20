@@ -5,6 +5,7 @@ import { removePassword } from "../../utils";
 
 import { Event, EventInput } from "../../types/eventTypes";
 import { EventModel, UserModel } from "../../models/models";
+import { User } from "../../types/userTypes";
 
 @Resolver(Event)
 class EventResolver {
@@ -16,7 +17,9 @@ class EventResolver {
         populate: { path: "createdEvents" },
       });
 
-      return events;
+      return events.map((event) => {
+        return removePassword(event, event.creator as User, undefined, true);
+      });
     } catch (err) {
       throw new Error(err);
     }
@@ -31,31 +34,20 @@ class EventResolver {
         creator: "60f1ccc94915a31f1c9fa45f",
       });
 
-      await newEvent.save();
+      // await newEvent.save();
 
       const user = await UserModel.findById(
         "60f1ccc94915a31f1c9fa45f"
-      ).populate({
-        path: "createdEvents",
-        populate: { path: "creator" },
-      });
+      ).populate("createdEvents");
 
       if (user) {
         user.createdEvents.push(newEvent);
-        await user.save();
+        // await user.save();
       } else {
         throw new Error("User Not Found");
       }
 
-      return {
-        _id: newEvent._id,
-        title: newEvent.title,
-        description: newEvent.description,
-        price: newEvent.price,
-        date: newEvent.date,
-        creator: user,
-      };
-      //removePassword(newEvent, user)
+      return removePassword(newEvent, user, undefined, true);
     } catch (err) {
       throw new Error(err);
     }
