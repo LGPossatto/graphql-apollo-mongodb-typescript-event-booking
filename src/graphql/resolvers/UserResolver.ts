@@ -8,7 +8,6 @@ import { removeObjectPassword } from "../../utils";
 import { AuthData, User, UserInput } from "../../types/userTypes";
 import { UserModel } from "../../models/models";
 import { secretKey } from "../../config";
-import { Token } from "graphql";
 
 @Resolver(User)
 class UserResolver {

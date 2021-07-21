@@ -1,11 +1,19 @@
 import { mongoose } from "@typegoose/typegoose";
-import { Arg, Mutation, Query, Resolver } from "type-graphql";
+import {
+  Arg,
+  Ctx,
+  Mutation,
+  Query,
+  Resolver,
+  UseMiddleware,
+} from "type-graphql";
 
-import { removePassword } from "../../utils";
+import { checkAuth, removePassword } from "../../utils";
 
 import { Event, EventInput } from "../../types/eventTypes";
 import { EventModel, UserModel } from "../../models/models";
 import { User } from "../../types/userTypes";
+import { TContext } from "../../types/helperTypes";
 
 @Resolver(Event)
 class EventResolver {
@@ -26,19 +34,21 @@ class EventResolver {
   }
 
   @Mutation(() => Event!)
-  async createEvent(@Arg("eventInput") eventInput: EventInput): Promise<Event> {
+  @UseMiddleware(checkAuth)
+  async createEvent(
+    @Arg("eventInput") eventInput: EventInput,
+    @Ctx() { userId }: TContext
+  ): Promise<Event> {
     try {
       const newEvent = new EventModel({
         _id: new mongoose.Types.ObjectId(),
         ...eventInput,
-        creator: "60f1ccc94915a31f1c9fa45f",
+        creator: userId,
       });
 
       // await newEvent.save();
 
-      const user = await UserModel.findById(
-        "60f1ccc94915a31f1c9fa45f"
-      ).populate("createdEvents");
+      const user = await UserModel.findById(userId).populate("createdEvents");
 
       if (user) {
         user.createdEvents.push(newEvent);

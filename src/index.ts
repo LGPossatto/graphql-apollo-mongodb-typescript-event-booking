@@ -11,9 +11,15 @@ import schema from "./graphql/schema";
   app.use(express.json());
   app.use(
     "/graphql",
-    graphqlHTTP({
-      schema: await schema(),
-      graphiql: true,
+    graphqlHTTP(async (req) => {
+      return {
+        schema: await schema(),
+        context: {
+          userToken: req.headers.authorization,
+          userId: "",
+        },
+        graphiql: true,
+      };
     })
   );
 

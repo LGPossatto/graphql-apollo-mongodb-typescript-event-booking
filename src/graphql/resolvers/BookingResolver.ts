@@ -1,6 +1,6 @@
-import { Arg, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Mutation, Query, Resolver, UseMiddleware } from "type-graphql";
 
-import { removeObjectPassword, removePassword } from "../../utils";
+import { checkAuth, removeObjectPassword, removePassword } from "../../utils";
 
 import { BookingModel, EventModel, UserModel } from "../../models/models";
 import { Booking, BookingInput } from "../../types/bookingTypes";
@@ -10,6 +10,7 @@ import { User } from "../../types/userTypes";
 @Resolver(Booking)
 class BookingResolver {
   @Query(() => [Booking]!)
+  @UseMiddleware(checkAuth)
   async bookings(): Promise<Booking[] | undefined> {
     try {
       const bookings = await BookingModel.find()
@@ -35,6 +36,7 @@ class BookingResolver {
   }
 
   @Mutation(() => Booking)
+  @UseMiddleware(checkAuth)
   async bookEvent(
     @Arg("eventIdInput") eventIdInput: EventIdInput
   ): Promise<Booking | undefined> {
@@ -65,6 +67,7 @@ class BookingResolver {
   }
 
   @Mutation(() => Event)
+  @UseMiddleware(checkAuth)
   async cancelBooking(
     @Arg("bookingInput") bookingInput: BookingInput
   ): Promise<Event | undefined> {

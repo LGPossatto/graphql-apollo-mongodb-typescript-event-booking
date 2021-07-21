@@ -1,5 +1,10 @@
+import { MiddlewareFn } from "type-graphql";
+import jwt from "jsonwebtoken";
+
+import { TContext } from "./types/helperTypes";
 import { Event } from "./types/eventTypes";
-import { User } from "./types/userTypes";
+import { AuthData, User } from "./types/userTypes";
+import { secretKey } from "./config";
 
 export const removePassword = <T>(
   object: T,
@@ -48,4 +53,22 @@ export const removeObjectPassword = <T>(object: T, isUser?: boolean) => {
   }
 
   return ret;
+};
+
+export const checkAuth: MiddlewareFn<TContext> = ({ context }, next) => {
+  const { userToken } = context;
+
+  if (userToken) {
+    const token = userToken.split(" ")[1];
+    let decodeToken;
+
+    try {
+      decodeToken = jwt.verify(token, secretKey as string) as AuthData;
+      context.userId = decodeToken.userId;
+
+      return next();
+    } catch (err) {
+      throw new Error("Not Authorized");
+    }
+  } else throw new Error("No Authorization Key Was Received");
 };
