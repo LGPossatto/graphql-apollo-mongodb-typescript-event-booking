@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 
 export type TContext = {
-  userToken: string;
-  userId: ObjectId;
+  authBearer: string;
+  userId: ObjectId | null;
 };

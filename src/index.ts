@@ -1,8 +1,9 @@
 import "reflect-metadata";
 import express from "express";
-import { graphqlHTTP } from "express-graphql";
+import { ApolloServer } from "apollo-server-express";
 import mongoose from "mongoose";
 
+import { TContext } from "./types/helperTypes";
 import { port, mongoUri } from "./config";
 import schema from "./graphql/schema";
 
@@ -23,19 +24,19 @@ import schema from "./graphql/schema";
       next();
     }
   });
-  app.use(
-    "/graphql",
-    graphqlHTTP(async (req) => {
-      return {
-        schema: await schema(),
-        context: {
-          userToken: req.headers.authorization,
-          userId: "",
-        },
-        graphiql: true,
-      };
-    })
-  );
+
+  const server = new ApolloServer({
+    schema: await schema(),
+    context: ({ req }) => {
+      const context: TContext = { authBearer: "", userId: null };
+
+      context.authBearer = req.headers.authorization || "";
+
+      return context;
+    },
+  });
+  await server.start();
+  server.applyMiddleware({ app });
 
   mongoose
     .connect(mongoUri as string, {

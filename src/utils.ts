@@ -56,10 +56,10 @@ export const removeObjectPassword = <T>(object: T, isUser?: boolean) => {
 };
 
 export const checkAuth: MiddlewareFn<TContext> = ({ context }, next) => {
-  const { userToken } = context;
+  const { authBearer } = context;
 
-  if (userToken) {
-    const token = userToken.split(" ")[1];
+  if (authBearer) {
+    const token = authBearer.split(" ")[1];
     let decodeToken;
 
     try {
