@@ -51,7 +51,7 @@ class UserResolver {
         createdEvents: [],
       });
 
-      // await newUser.save();
+      await newUser.save();
       return removeObjectPassword(newUser, true);
     } catch (err) {
       throw new Error(err);

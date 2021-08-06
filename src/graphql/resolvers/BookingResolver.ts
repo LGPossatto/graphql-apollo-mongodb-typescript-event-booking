@@ -1,19 +1,29 @@
-import { Arg, Mutation, Query, Resolver, UseMiddleware } from "type-graphql";
+import { ObjectId } from "mongodb";
+import {
+  Arg,
+  Ctx,
+  Mutation,
+  Query,
+  Resolver,
+  UseMiddleware,
+} from "type-graphql";
 
 import { checkAuth, removeObjectPassword, removePassword } from "../../utils";
 
-import { BookingModel, EventModel, UserModel } from "../../models/models";
 import { Booking, BookingInput } from "../../types/bookingTypes";
 import { Event, EventIdInput } from "../../types/eventTypes";
 import { User } from "../../types/userTypes";
+import { TContext } from "../../types/helperTypes";
+
+import { BookingModel, EventModel, UserModel } from "../../models/models";
 
 @Resolver(Booking)
 class BookingResolver {
   @Query(() => [Booking]!)
   @UseMiddleware(checkAuth)
-  async bookings(): Promise<Booking[] | undefined> {
+  async bookings(@Ctx() { userId }: TContext): Promise<Booking[] | undefined> {
     try {
-      const bookings = await BookingModel.find()
+      const bookings = await BookingModel.find({ user: userId as ObjectId })
         .populate({
           path: "user",
           populate: { path: "createdEvents" },
@@ -56,7 +66,7 @@ class BookingResolver {
           event: event,
         });
 
-        // await newBooking.save();
+        await newBooking.save();
         return removePassword(newBooking, user as User, event as Event);
       } else {
         throw new Error("Event Not Found");
@@ -79,7 +89,7 @@ class BookingResolver {
         populate: { path: "creator", populate: "createdEvents" },
       });
 
-      // await BookingModel.deleteOne({ _id: bookingInput.bookingId });
+      await BookingModel.deleteOne({ _id: bookingInput.bookingId });
 
       if (booking) {
         return removeObjectPassword(booking.event);

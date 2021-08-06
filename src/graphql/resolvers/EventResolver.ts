@@ -46,13 +46,13 @@ class EventResolver {
         creator: userId,
       });
 
-      // await newEvent.save();
+      await newEvent.save();
 
       const user = await UserModel.findById(userId).populate("createdEvents");
 
       if (user) {
         user.createdEvents.push(newEvent);
-        // await user.save();
+        await user.save();
       } else {
         throw new Error("User Not Found");
       }
