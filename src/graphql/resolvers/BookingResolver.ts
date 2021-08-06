@@ -48,7 +48,8 @@ class BookingResolver {
   @Mutation(() => Booking)
   @UseMiddleware(checkAuth)
   async bookEvent(
-    @Arg("eventIdInput") eventIdInput: EventIdInput
+    @Arg("eventIdInput") eventIdInput: EventIdInput,
+    @Ctx() { userId }: TContext
   ): Promise<Booking | undefined> {
     try {
       const event = await EventModel.findById(eventIdInput.eventId).populate({
@@ -57,9 +58,7 @@ class BookingResolver {
       });
 
       if (event) {
-        const user = await UserModel.findById(event.creator).populate(
-          "createdEvents"
-        );
+        const user = await UserModel.findById(userId).populate("createdEvents");
 
         const newBooking = new BookingModel({
           user: user,
