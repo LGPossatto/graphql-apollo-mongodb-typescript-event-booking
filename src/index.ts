@@ -2,6 +2,7 @@ import "reflect-metadata";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import mongoose from "mongoose";
+import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
 
 import { TContext } from "./types/helperTypes";
 import { port, mongoUri } from "./config";
@@ -34,6 +35,7 @@ import schema from "./graphql/schema";
 
       return context;
     },
+    plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
   });
   await server.start();
   server.applyMiddleware({ app });
