@@ -36,6 +36,7 @@ import schema from "./graphql/schema";
       return context;
     },
     plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
+    introspection: true,
   });
   await server.start();
   server.applyMiddleware({ app });
