@@ -6,8 +6,8 @@ create and request events, or book an event.
 
 I've modified some parts of the project and added new technologies, for example, typescript, type-graphql, and apollo server.
 
-Access the playground here: https://type-graphql-api.herokuapp.com/graphql.
-To see the frontend part go to this repository: https://github.com/LGPossatto/react-apollo-typescript-event-booking.  
+Access the playground here: https://type-graphql-api.herokuapp.com/graphql.  
+To see the frontend part go to this repository: https://github.com/LGPossatto/react-apollo-typescript-event-booking.   
   
 ##### Tech Utilized
 - NodeJs  
